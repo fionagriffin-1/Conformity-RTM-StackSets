@@ -1,0 +1,39 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Cloud Conformity Monitoring Stack
+
+Parameters:
+  CloudConformityAccountId:
+    Description: "The Cloud Conformity account Id"
+    Type: String
+  EventBusSources:
+    Description: "AWS services supported by RTM"
+    Type: String
+
+Resources:
+
+  CloudConformityMonitoring:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name: CloudConformityMonitoring
+      Description: CloudConformityMonitoring
+      EventPattern:
+        account:
+          - !Ref "AWS::AccountId"
+        source:
+          !Split
+            - ","
+            - !Ref EventBusSources
+        detail:
+          eventCategory:
+            - "Management"
+      State: ENABLED
+      Targets:
+         - Arn: !Join
+            - ":"
+            - - "arn:aws:events"
+              - !Ref "AWS::Region"
+              - !Ref CloudConformityAccountId
+              - "event-bus/default"
+           Id: "CloudConformityBus"
